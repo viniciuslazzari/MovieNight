@@ -13,6 +13,7 @@ namespace CinemaApi.Infrastructure
 
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
