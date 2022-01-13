@@ -11,6 +11,6 @@ namespace CinemaApi.Models
         [Required]
         public int Duration { get; set; }
         public string Synopsis { get; set; }
-        public List<NewSessionInputModel> Sessions { get; private set; }
+        public List<NewSessionInputModel> Sessions { get; set; }
     }
 }
