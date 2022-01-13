@@ -45,7 +45,8 @@ namespace CinemaApi.Domain
 
         public void AddSession(DateTime date, int maxOccupation, double price)
         {
-            var newSession = new Session(Guid.NewGuid(), date, maxOccupation, price);
+            // Lembrar de tirar os nulls
+            var newSession = new Session(Guid.NewGuid(), date, maxOccupation, price, null);
             _sessions.Add(newSession);
         }
 
@@ -53,7 +54,8 @@ namespace CinemaApi.Domain
         {
             var session = _sessions.FirstOrDefault(item => item.Id == id);
             if (session != null)
-                session = new Session(id, date, maxOccupation, price);
+                // Lembrar de tirar os nulls
+                session = new Session(id, date, maxOccupation, price, null);
         }
 
         public void DeleteSessions(IEnumerable<Guid> deletedSessions)

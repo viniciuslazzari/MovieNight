@@ -1,6 +1,8 @@
 ﻿using CinemaApi.Domain;
+using CinemaApi.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +17,11 @@ namespace CinemaApi.Infrastructure
             _dbContext = dbContext;
         }
 
+        public async Task<IEnumerable<Session>> GetAll(CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Sessions.Include(c => c.Tickets).ToListAsync(cancellationToken);
+        }
+
         public async Task<Session> GetById(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Sessions.FirstOrDefaultAsync(session => session.Id == id, cancellationToken);
@@ -24,11 +31,17 @@ namespace CinemaApi.Infrastructure
         {
             await _dbContext.Sessions.AddAsync(newSession, cancellationToken);
         }
-        public void CreateOrUpdate(Session modifiedSession)
+
+        public void Update(Guid id, UpdateSessionInputModel updatedSession, CancellationToken cancellationToken = default)
         {
-            _dbContext.Sessions.Update(modifiedSession);
+            var oldSession = GetById(id, cancellationToken);
+            _dbContext.Entry(oldSession).CurrentValues.SetValues(updatedSession);
         }
 
+        public void Delete(Session deletedSession)
+        {
+            _dbContext.Sessions.Remove(deletedSession);
+        }
 
         public async Task Commit(CancellationToken cancellationToken = default)
         {
