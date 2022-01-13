@@ -24,7 +24,7 @@ namespace CinemaApi.Infrastructure
 
         public async Task<Movie> GetById(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Movies.FirstOrDefaultAsync(movie => movie.Id == id, cancellationToken);
+            return await _dbContext.Movies.Include(c => c.Sessions).FirstOrDefaultAsync(movie => movie.Id == id, cancellationToken);
         }
 
         public async Task Create(Movie newMovie, CancellationToken cancellationToken = default)

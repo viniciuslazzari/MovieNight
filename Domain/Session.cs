@@ -13,14 +13,19 @@ namespace CinemaApi.Domain
 
         [Required]
         public Guid Id { get; private set; }
+        [Required]
+        public Guid MovieId { get; private set; }
         public DateTime Date { get; private set; }
         public int MaxOccupation { get; private set; }
         public double Price { get; private set; }
         public IEnumerable<Ticket> Tickets => _tickets;
 
-        public Session(Guid id, DateTime date, int maxOccupation, double price, List<Ticket> tickets)
+        private Session() { }
+
+        public Session(Guid id, Guid movieId, DateTime date, int maxOccupation, double price, List<Ticket> tickets)
         {
             Id = id;
+            MovieId = movieId;
             Date = date;
             MaxOccupation = maxOccupation;
             Price = price;
@@ -29,14 +34,17 @@ namespace CinemaApi.Domain
 
         public static Result<Session> Create(NewSessionInputModel inputModel)
         {
-            var newSession = new Session(Guid.NewGuid(), inputModel.Date, inputModel.MaxOccupation, inputModel.Price, new List<Ticket>());
+            var newSession = 
+                new Session(
+                    Guid.NewGuid(), Guid.Parse(inputModel.MovieId), DateTime.Parse(inputModel.Date), 
+                    inputModel.MaxOccupation, inputModel.Price, inputModel.Tickets);
 
             return newSession;
         }
 
         public void AddTicket(string client, int amount)
         {
-            var newTicket = new Ticket(Guid.NewGuid(), client, amount);
+            var newTicket = new Ticket(Guid.NewGuid(), Id, client, amount);
             _tickets.Add(newTicket);
         }
 
@@ -44,7 +52,7 @@ namespace CinemaApi.Domain
         {
             var ticket = _tickets.FirstOrDefault(item => item.Id == id);
             if (ticket != null)
-                ticket = new Ticket(id, client, amount);
+                ticket = new Ticket(id, Id, client, amount);
         }
 
         public void DeleteTickets(IEnumerable<Guid> deletedTickets)

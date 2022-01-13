@@ -7,12 +7,15 @@ namespace CinemaApi.Domain
     {
         [Required]
         public Guid Id { get; private set; }
+        [Required]
+        public Guid SessionId { get; private set; }
         public string Client { get; private set; }
         public int Amount { get; private set; }
 
-        public Ticket(Guid id, string client, int amount)
+        public Ticket(Guid id, Guid sessionId, string client, int amount)
         {
             Id = id;
+            SessionId = sessionId;
             Client = client;
             Amount = amount;
         }

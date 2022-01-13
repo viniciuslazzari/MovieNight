@@ -33,9 +33,12 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
-            var movie = await _moviesRepository.GetById(id, cancellationToken);
+            if (!Guid.TryParse(id, out var guid))
+                return BadRequest("ID could not be converted");
+
+            var movie = await _moviesRepository.GetById(guid, cancellationToken);
 
             return Ok(movie);
         }
@@ -50,13 +53,16 @@ namespace CinemaApi.Controllers
             await _moviesRepository.Create(newMovie.Value, cancellationToken);
             await _moviesRepository.Commit(cancellationToken);
 
-            return CreatedAtAction("GetById", new { id = newMovie.Value.Id}, newMovie.Value.Id);
+            return CreatedAtAction("GetById", new { id = newMovie.Value.Id }, newMovie.Value.Id);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] UpdateMovieInputModel inputModel, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put(string id, [FromBody] UpdateMovieInputModel inputModel, CancellationToken cancellationToken)
         {
-            var oldMovie = await _moviesRepository.GetById(id, cancellationToken);
+            if (!Guid.TryParse(id, out var guid))
+                return BadRequest("ID could not be converted");
+
+            var oldMovie = await _moviesRepository.GetById(guid, cancellationToken);
 
             if (oldMovie == null)
                 return NotFound();
@@ -64,7 +70,7 @@ namespace CinemaApi.Controllers
             // BUG ESTRANHO AQUI
             var existingSessions =
                 oldMovie.Sessions
-                    .Where(c => inputModel.Sessions.Any(input => input.Id == c.Id))
+                    .Where(c => inputModel.Sessions.Any(input => input.Id == c.Id.ToString()))
                     .Select(c => c.Id);
 
             var deletedSessions =
@@ -76,26 +82,35 @@ namespace CinemaApi.Controllers
 
             foreach (var session in inputModel.Sessions)
             {
-                if (session.Id == Guid.Empty)
+                if (!DateTime.TryParse(session.Date, out var date))
+                    return BadRequest("Session Datetime could not be converted");
+
+                if (string.IsNullOrEmpty(session.Id))
                 {
-                    oldMovie.AddSession(session.Date, session.MaxOccupation, session.Price);
+                    oldMovie.AddSession(date, session.MaxOccupation, session.Price);
                 }
                 else
                 {
-                    oldMovie.UpdateSession(session.Id, session.Date, session.MaxOccupation, session.Price);
+                    if (!Guid.TryParse(id, out var sessionGuid))
+                        return BadRequest("Session ID could not be converted");
+
+                    oldMovie.UpdateSession(sessionGuid, date, session.MaxOccupation, session.Price);
                 }
             }
 
-            _moviesRepository.Update(id, inputModel, cancellationToken);
+            _moviesRepository.Update(guid, inputModel, cancellationToken);
             await _moviesRepository.Commit(cancellationToken);
 
             return Ok(oldMovie);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
         {
-            var removedMovie = await _moviesRepository.GetById(id, cancellationToken);
+            if (!Guid.TryParse(id, out var guid))
+                return BadRequest("ID could not be converted");
+
+            var removedMovie = await _moviesRepository.GetById(guid, cancellationToken);
 
             if (removedMovie == null)
                 return NotFound();

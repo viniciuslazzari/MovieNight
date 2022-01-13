@@ -24,7 +24,7 @@ namespace CinemaApi.Infrastructure
 
         public async Task<Session> GetById(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Sessions.FirstOrDefaultAsync(session => session.Id == id, cancellationToken);
+            return await _dbContext.Sessions.Include(c => c.Tickets).FirstOrDefaultAsync(session => session.Id == id, cancellationToken);
         }
 
         public async Task Create(Session newSession, CancellationToken cancellationToken = default)
@@ -34,7 +34,7 @@ namespace CinemaApi.Infrastructure
 
         public void Update(Guid id, UpdateSessionInputModel updatedSession, CancellationToken cancellationToken = default)
         {
-            var oldSession = GetById(id, cancellationToken);
+            var oldSession = _dbContext.Sessions.Find(id);
             _dbContext.Entry(oldSession).CurrentValues.SetValues(updatedSession);
         }
 

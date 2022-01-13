@@ -24,17 +24,37 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll([FromQuery] string movie, [FromQuery] string date, CancellationToken cancellationToken)
         {
             var sessions = await _sessionsRepository.GetAll(cancellationToken);
+
+            if (!string.IsNullOrEmpty(movie))
+            {
+                if (!Guid.TryParse(movie, out var movieGuid))
+                    return BadRequest("Movie ID could not be converted");
+
+                sessions = sessions.Where(session => session.MovieId == movieGuid);
+            }
+
+            if (!string.IsNullOrEmpty(date))
+            {
+                if (!DateTime.TryParse(date, out var datetime))
+                    return BadRequest();
+
+                sessions = sessions.Where(session => session.Date == datetime);
+            }
 
             return Ok(sessions);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+
+        public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
-            var session = await _sessionsRepository.GetById(id, cancellationToken);
+            if (!Guid.TryParse(id, out var guid))
+                return BadRequest("ID could not be converted");
+
+            var session = await _sessionsRepository.GetById(guid, cancellationToken);
 
             return Ok(session);
         }
@@ -53,48 +73,57 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] UpdateSessionInputModel inputModel, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put(string id, [FromBody] UpdateSessionInputModel inputModel, CancellationToken cancellationToken)
         {
-            var oldSession = await _sessionsRepository.GetById(id, cancellationToken);
+            if (!Guid.TryParse(id, out var guid))
+                return BadRequest("ID could not be converted");
 
-            if (oldSession == null)
+            var session = await _sessionsRepository.GetById(guid, cancellationToken);
+
+            if (session == null)
                 return NotFound();
 
             // BUG ESTRANHO AQUI
             var existingTickets =
-                oldSession.Tickets
-                    .Where(c => inputModel.Tickets.Any(input => input.Id == c.Id))
+                session.Tickets
+                    .Where(c => inputModel.Tickets.Any(input => input.Id == c.Id.ToString()))
                     .Select(c => c.Id);
 
             var deletedTickets =
-                oldSession.Tickets
+                session.Tickets
                     .Where(c => existingTickets.Any(id => id != c.Id))
                     .Select(c => c.Id);
 
-            oldSession.DeleteTickets(deletedTickets);
+            session.DeleteTickets(deletedTickets);
 
             foreach (var ticket in inputModel.Tickets)
             {
-                if (ticket.Id == Guid.Empty)
+                if (string.IsNullOrEmpty(ticket.Id))
                 {
-                    oldSession.AddTicket(ticket.Client, ticket.Amount);
+                    session.AddTicket(ticket.Client, ticket.Amount);
                 }
                 else
                 {
-                    oldSession.UpdateTicket(ticket.Id, ticket.Client, ticket.Amount);
+                    if (!Guid.TryParse(id, out var ticketId))
+                        return BadRequest("Ticket ID could not be converted");
+
+                    session.UpdateTicket(ticketId, ticket.Client, ticket.Amount);
                 }
             }
 
-            _sessionsRepository.Update(id, inputModel, cancellationToken);
+            _sessionsRepository.Update(guid, inputModel, cancellationToken);
             await _sessionsRepository.Commit(cancellationToken);
 
-            return Ok(oldSession);
+            return Ok(session);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
         {
-            var removedSession = await _sessionsRepository.GetById(id, cancellationToken);
+            if (!Guid.TryParse(id, out var guid))
+                return BadRequest("ID could not be converted");
+
+            var removedSession = await _sessionsRepository.GetById(guid, cancellationToken);
 
             if (removedSession == null)
                 return NotFound();

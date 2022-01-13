@@ -16,9 +16,9 @@ namespace CinemaApi.Models
 
         public sealed class UpdateSessionInputModel
         {
-            public Guid Id { get; set; }
+            public string Id { get; set; }
             [Required]
-            public DateTime Date { get; set; }
+            public string Date { get; set; }
             public int MaxOccupation { get; set; }
             public double Price { get; set; }
         }
