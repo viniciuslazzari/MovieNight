@@ -17,10 +17,10 @@ namespace CinemaApi.Controllers
         private readonly ILogger<SessionsController> _logger;
         private readonly SessionsRepository _sessionsRepository;
 
-        public SessionsController(ILogger<SessionsController> logger, SessionsRepository moviesRepository)
+        public SessionsController(ILogger<SessionsController> logger, SessionsRepository sessionsRepository)
         {
             _logger = logger;
-            _sessionsRepository = moviesRepository;
+            _sessionsRepository = sessionsRepository;
         }
 
         [HttpGet]
@@ -62,6 +62,9 @@ namespace CinemaApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] NewSessionInputModel inputModel, CancellationToken cancellationToken)
         {
+            if (!Guid.TryParse(inputModel.MovieId, out var guid))
+                return BadRequest("Movie ID could not be converted");
+
             var newSession = Session.Create(inputModel);
             if (newSession.IsFailure)
                 return BadRequest(newSession.Error);
@@ -83,7 +86,6 @@ namespace CinemaApi.Controllers
             if (session == null)
                 return NotFound();
 
-            // BUG ESTRANHO AQUI
             var existingTickets =
                 session.Tickets
                     .Where(c => inputModel.Tickets.Any(input => input.Id == c.Id.ToString()))

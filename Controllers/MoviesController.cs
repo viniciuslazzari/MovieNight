@@ -67,7 +67,6 @@ namespace CinemaApi.Controllers
             if (oldMovie == null)
                 return NotFound();
 
-            // BUG ESTRANHO AQUI
             var existingSessions =
                 oldMovie.Sessions
                     .Where(c => inputModel.Sessions.Any(input => input.Id == c.Id.ToString()))

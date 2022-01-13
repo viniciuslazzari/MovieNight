@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CinemaApi.Models;
+using CSharpFunctionalExtensions;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace CinemaApi.Domain
@@ -18,6 +20,13 @@ namespace CinemaApi.Domain
             SessionId = sessionId;
             Client = client;
             Amount = amount;
+        }
+
+        public static Result<Ticket> Create(NewTicketInputModel inputModel)
+        {
+            var newTicket = new Ticket(Guid.NewGuid(), Guid.Parse(inputModel.SessionId), inputModel.Client, inputModel.Amount);
+
+            return newTicket;
         }
     }
 }
