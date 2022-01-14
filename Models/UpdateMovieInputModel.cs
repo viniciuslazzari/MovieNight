@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CinemaApi.Models
 {
@@ -11,15 +10,5 @@ namespace CinemaApi.Models
         [Required]
         public int Duration { get; set; }
         public string Synopsis { get; set; }
-        public List<UpdateSessionInputModel> Sessions { get; set; }
-
-        public sealed class UpdateSessionInputModel
-        {
-            public string Id { get; set; }
-            [Required]
-            public string Date { get; set; }
-            public int MaxOccupation { get; set; }
-            public double Price { get; set; }
-        }
     }
 }

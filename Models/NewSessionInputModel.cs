@@ -13,6 +13,5 @@ namespace CinemaApi.Models
         public string Date { get; set; }
         public int MaxOccupation { get; set; }
         public double Price { get; set; }
-        public List<Ticket> Tickets { get; set; }
     }
 }

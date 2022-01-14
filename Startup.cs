@@ -73,6 +73,10 @@ namespace CinemaApi
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
+
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

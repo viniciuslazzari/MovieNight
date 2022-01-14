@@ -36,33 +36,11 @@ namespace CinemaApi.Domain
             return newMovie;
         }
 
-        public static Result<Movie> Create(Guid id, UpdateMovieInputModel inputModel)
+        public void Update(UpdateMovieInputModel inputModel)
         {
-            var newMovie = new Movie(id, inputModel.Title, inputModel.Duration, inputModel.Synopsis, new List<Session>());
-
-            return newMovie;
-        }
-
-        public void AddSession(DateTime date, int maxOccupation, double price)
-        {
-            // Lembrar de tirar os nulls
-            var newSession = new Session(Guid.NewGuid(), Id, date, maxOccupation, price, null);
-            _sessions.Add(newSession);
-        }
-
-        public void UpdateSession(Guid id, DateTime date, int maxOccupation, double price)
-        {
-            var session = _sessions.FirstOrDefault(item => item.Id == id);
-            if (session != null)
-                // Lembrar de tirar os nulls
-                session = new Session(id, Id, date, maxOccupation, price, null);
-        }
-
-        public void DeleteSessions(IEnumerable<Guid> deletedSessions)
-        {
-            var sessions = _sessions.Where(c => deletedSessions.Any(id => id == c.Id));
-            foreach (var session in sessions)
-                _sessions.Remove(session);
+            Title = inputModel.Title;
+            Duration = inputModel.Duration;
+            Synopsis = inputModel.Synopsis;
         }
     }
 }

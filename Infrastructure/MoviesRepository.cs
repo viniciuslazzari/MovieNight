@@ -33,8 +33,6 @@ namespace CinemaApi.Infrastructure
 
         public void Update(Movie movie)
         {
-
-
         }
 
         public void Delete(Movie deletedMovie)

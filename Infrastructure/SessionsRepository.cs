@@ -32,10 +32,8 @@ namespace CinemaApi.Infrastructure
             await _dbContext.Sessions.AddAsync(newSession, cancellationToken);
         }
 
-        public void Update(Guid id, UpdateSessionInputModel updatedSession, CancellationToken cancellationToken = default)
+        public void Update(Session session)
         {
-            var oldSession = _dbContext.Sessions.Find(id);
-            _dbContext.Entry(oldSession).CurrentValues.SetValues(updatedSession);
         }
 
         public void Delete(Session deletedSession)

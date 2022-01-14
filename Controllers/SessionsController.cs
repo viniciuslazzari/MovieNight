@@ -1,6 +1,7 @@
 ﻿using CinemaApi.Domain;
 using CinemaApi.Infrastructure;
 using CinemaApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -61,6 +62,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         //[RequireHttpsOrClose]
         public async Task<IActionResult> Post([FromBody] NewSessionInputModel inputModel, CancellationToken cancellationToken)
         {
@@ -81,6 +83,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         //[RequireHttpsOrClose]
         public async Task<IActionResult> Put(string id, [FromBody] UpdateSessionInputModel inputModel, CancellationToken cancellationToken)
         {
@@ -92,40 +95,15 @@ namespace CinemaApi.Controllers
             if (session == null)
                 return NotFound();
 
-            var existingTickets =
-                session.Tickets
-                    .Where(c => inputModel.Tickets.Any(input => input.Id == c.Id.ToString()))
-                    .Select(c => c.Id);
-
-            var deletedTickets =
-                session.Tickets
-                    .Where(c => existingTickets.Any(id => id != c.Id))
-                    .Select(c => c.Id);
-
-            session.DeleteTickets(deletedTickets);
-
-            foreach (var ticket in inputModel.Tickets)
-            {
-                if (string.IsNullOrEmpty(ticket.Id))
-                {
-                    session.AddTicket(ticket.Client, ticket.Amount);
-                }
-                else
-                {
-                    if (!Guid.TryParse(id, out var ticketId))
-                        return BadRequest("Ticket ID could not be converted");
-
-                    session.UpdateTicket(ticketId, ticket.Client, ticket.Amount);
-                }
-            }
-
-            _sessionsRepository.Update(guid, inputModel, cancellationToken);
+            session.Update(inputModel);
+            _sessionsRepository.Update(session);
             await _sessionsRepository.Commit(cancellationToken);
 
             return Ok(session);
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         //[RequireHttpsOrClose]
         public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
         {

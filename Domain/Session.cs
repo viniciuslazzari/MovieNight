@@ -37,29 +37,17 @@ namespace CinemaApi.Domain
             var newSession = 
                 new Session(
                     Guid.NewGuid(), Guid.Parse(inputModel.MovieId), DateTime.Parse(inputModel.Date), 
-                    inputModel.MaxOccupation, inputModel.Price, inputModel.Tickets);
+                    inputModel.MaxOccupation, inputModel.Price, new List<Ticket>());
 
             return newSession;
         }
 
-        public void AddTicket(string client, int amount)
+        public void Update(UpdateSessionInputModel inputModel)
         {
-            var newTicket = new Ticket(Guid.NewGuid(), Id, client, amount);
-            _tickets.Add(newTicket);
-        }
-
-        public void UpdateTicket(Guid id, string client, int amount)
-        {
-            var ticket = _tickets.FirstOrDefault(item => item.Id == id);
-            if (ticket != null)
-                ticket = new Ticket(id, Id, client, amount);
-        }
-
-        public void DeleteTickets(IEnumerable<Guid> deletedTickets)
-        {
-            var tickets = _tickets.Where(c => deletedTickets.Any(id => id == c.Id));
-            foreach (var ticket in tickets)
-                _tickets.Remove(ticket);
+            MovieId = Guid.Parse(inputModel.MovieId);
+            Date = DateTime.Parse(inputModel.Date);
+            MaxOccupation = inputModel.MaxOccupation;
+            Price = inputModel.Price;
         }
     }
 }
