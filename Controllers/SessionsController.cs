@@ -24,6 +24,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> GetAll([FromQuery] string movie, [FromQuery] string date, CancellationToken cancellationToken)
         {
             var sessions = await _sessionsRepository.GetAll(cancellationToken);
@@ -48,7 +49,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet("{id}")]
-
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
@@ -60,6 +61,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPost]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> Post([FromBody] NewSessionInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(inputModel.MovieId, out var guid))
@@ -79,6 +81,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPut("{id}")]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> Put(string id, [FromBody] UpdateSessionInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
@@ -123,6 +126,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))

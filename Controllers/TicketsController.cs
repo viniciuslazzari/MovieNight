@@ -26,6 +26,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             var tickets = await _ticketsRepository.GetAll(cancellationToken);
@@ -34,6 +35,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet("{id}")]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
@@ -45,6 +47,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPost]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> Post([FromBody] NewTicketInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(inputModel.SessionId, out var guid))

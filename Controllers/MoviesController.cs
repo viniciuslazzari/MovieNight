@@ -1,4 +1,5 @@
 ﻿using CinemaApi.Domain;
+using CinemaApi.Hosting.Attributes;
 using CinemaApi.Infrastructure;
 using CinemaApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             var movies = await _moviesRepository.GetAll(cancellationToken);
@@ -32,6 +34,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet("{id}")]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
@@ -43,6 +46,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPost]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> Post([FromBody] NewMovieInputModel inputModel, CancellationToken cancellationToken)
         {
             var newMovie = Movie.Create(inputModel);
@@ -61,6 +65,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpPut("{id}")]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> Put(string id, [FromBody] UpdateMovieInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
@@ -110,6 +115,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        //[RequireHttpsOrClose]
         public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))

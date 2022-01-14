@@ -1,3 +1,4 @@
+using CinemaApi.Hosting.Filters;
 using CinemaApi.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,7 +22,10 @@ namespace CinemaApi
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(HttpGlobalExceptionFilter));
+            });
             services.AddDbContext<MovieNightDbContext>(s =>
             {
                 s.UseSqlServer(Configuration.GetConnectionString("MovieNight"));
@@ -37,7 +41,7 @@ namespace CinemaApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseSerilogRequestLogging();
 
