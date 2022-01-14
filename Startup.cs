@@ -1,5 +1,8 @@
 using CinemaApi.Hosting.Filters;
+using CinemaApi.Hosting.Scopes;
 using CinemaApi.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +53,25 @@ namespace CinemaApi
             });
 
             services.AddMvc(options => options.EnableEndpointRouting = false);
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = "https://dev-pb8gw8ke.us.auth0.com/";
+                options.Audience = "https://movienight/api";
+            });
+
+            string domain = $"https://dev-pb8gw8ke.us.auth0.com/";
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("admin", policy => policy.Requirements.Add(new HasScopeRequirement("admin", domain)));
+            });
+
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

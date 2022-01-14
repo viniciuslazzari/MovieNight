@@ -1,6 +1,7 @@
 ﻿using CinemaApi.Domain;
 using CinemaApi.Infrastructure;
 using CinemaApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -24,6 +25,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet]
+        [Authorize("admin")]
         //[RequireHttpsOrClose]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
