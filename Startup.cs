@@ -86,8 +86,6 @@ namespace CinemaApi
                 app.UseHttpsRedirection();
             }
 
-            app.UseSerilogRequestLogging();
-
             app.UseRouting();
 
             app.UseCors("Development");

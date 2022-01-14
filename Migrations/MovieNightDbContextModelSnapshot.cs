@@ -19,6 +19,39 @@ namespace CinemaApi.Migrations
                 .HasAnnotation("ProductVersion", "5.0.13")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("CinemaApi.Domain.Log", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Exception")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Level")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LogEvent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MessageTemplate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Properties")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("TimeStamp")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Logs");
+                });
+
             modelBuilder.Entity("CinemaApi.Domain.Movie", b =>
                 {
                     b.Property<Guid>("Id")
@@ -51,7 +84,7 @@ namespace CinemaApi.Migrations
                     b.Property<int>("MaxOccupation")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("MovieId")
+                    b.Property<Guid>("MovieId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Price")
@@ -76,7 +109,7 @@ namespace CinemaApi.Migrations
                     b.Property<string>("Client")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("SessionId")
+                    b.Property<Guid>("SessionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -90,14 +123,18 @@ namespace CinemaApi.Migrations
                 {
                     b.HasOne("CinemaApi.Domain.Movie", null)
                         .WithMany("Sessions")
-                        .HasForeignKey("MovieId");
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CinemaApi.Domain.Ticket", b =>
                 {
                     b.HasOne("CinemaApi.Domain.Session", null)
                         .WithMany("Tickets")
-                        .HasForeignKey("SessionId");
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CinemaApi.Domain.Movie", b =>
