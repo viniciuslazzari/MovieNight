@@ -76,6 +76,8 @@ namespace CinemaApi.Controllers
             await _ticketsRepository.Create(newTicket.Value, cancellationToken);
             await _ticketsRepository.Commit(cancellationToken);
 
+            _logger.LogInformation($"Ticket {newTicket.Value.Id} sold successfully");
+
             return CreatedAtAction("GetById", new { id = newTicket.Value.Id }, newTicket.Value.Id);
         }
     }

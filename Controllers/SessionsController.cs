@@ -79,6 +79,8 @@ namespace CinemaApi.Controllers
             await _sessionsRepository.Create(newSession.Value, cancellationToken);
             await _sessionsRepository.Commit(cancellationToken);
 
+            _logger.LogInformation($"Session {newSession.Value.Id} created successfully");
+
             return CreatedAtAction("GetById", new { id = newSession.Value.Id }, newSession.Value.Id);
         }
 
@@ -99,6 +101,8 @@ namespace CinemaApi.Controllers
             _sessionsRepository.Update(session);
             await _sessionsRepository.Commit(cancellationToken);
 
+            _logger.LogInformation($"Session {session.Id} updated successfully");
+
             return Ok(session);
         }
 
@@ -110,13 +114,15 @@ namespace CinemaApi.Controllers
             if (!Guid.TryParse(id, out var guid))
                 return BadRequest("ID could not be converted");
 
-            var removedSession = await _sessionsRepository.GetById(guid, cancellationToken);
+            var session = await _sessionsRepository.GetById(guid, cancellationToken);
 
-            if (removedSession == null)
+            if (session == null)
                 return NotFound();
 
-            _sessionsRepository.Delete(removedSession);
+            _sessionsRepository.Delete(session);
             await _sessionsRepository.Commit(cancellationToken);
+
+            _logger.LogInformation($"Session {session.Id} deleted successfully");
 
             return Ok("Session removed successfully!");
         }
