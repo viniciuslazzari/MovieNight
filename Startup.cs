@@ -60,15 +60,13 @@ namespace CinemaApi
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-                options.Authority = "https://dev-pb8gw8ke.us.auth0.com/";
-                options.Audience = "https://movienight/api";
+                options.Authority = Configuration["Authentication:Authority"];
+                options.Audience = Configuration["Authentication:Audience"];
             });
-
-            string domain = $"https://dev-pb8gw8ke.us.auth0.com/";
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("admin", policy => policy.Requirements.Add(new HasScopeRequirement("admin", domain)));
+                options.AddPolicy("admin", policy => policy.Requirements.Add(new HasScopeRequirement("admin", Configuration["Authentication:Authority"])));
             });
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
