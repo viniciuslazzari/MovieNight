@@ -26,26 +26,49 @@ namespace CinemaApi
             {
                 options.Filters.Add(typeof(HttpGlobalExceptionFilter));
             });
+
             services.AddDbContext<MovieNightDbContext>(s =>
             {
                 s.UseSqlServer(Configuration.GetConnectionString("MovieNight"));
             });
+
             services.AddScoped<MoviesRepository>();
             services.AddScoped<SessionsRepository>();
             services.AddScoped<TicketsRepository>();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    name: "Development",
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins("http://localhost:141149")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
+
+            services.AddMvc(options => options.EnableEndpointRouting = false);
+
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            } else
+            {
+                app.UseHttpsRedirection();
             }
-
-            //app.UseHttpsRedirection();
 
             app.UseSerilogRequestLogging();
 
             app.UseRouting();
+
+            app.UseCors("Development");
+
+            app.UseMvc();
 
             app.UseAuthorization();
 

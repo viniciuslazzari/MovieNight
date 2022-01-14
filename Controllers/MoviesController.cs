@@ -1,5 +1,4 @@
 ﻿using CinemaApi.Domain;
-using CinemaApi.Hosting.Attributes;
 using CinemaApi.Infrastructure;
 using CinemaApi.Models;
 using Microsoft.AspNetCore.Mvc;
