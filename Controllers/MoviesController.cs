@@ -25,7 +25,7 @@ namespace CinemaApi.Controllers
         }
 
         [HttpGet]
-        [Authorize("admin")]
+        [Authorize]
         //[RequireHttpsOrClose]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {

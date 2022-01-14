@@ -90,9 +90,10 @@ namespace CinemaApi
 
             app.UseCors("Development");
 
-            app.UseMvc();
-
+            app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMvc();
 
             app.UseEndpoints(endpoints =>
             {
