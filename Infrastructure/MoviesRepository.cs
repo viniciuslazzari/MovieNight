@@ -1,5 +1,4 @@
 ﻿using CinemaApi.Domain;
-using CinemaApi.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -32,10 +31,10 @@ namespace CinemaApi.Infrastructure
             await _dbContext.Movies.AddAsync(newMovie, cancellationToken);
         }
 
-        public void Update(Guid id, UpdateMovieInputModel updatedMovie, CancellationToken cancellationToken = default)
+        public void Update(Movie movie)
         {
-            var oldMovie = GetById(id, cancellationToken);
-            _dbContext.Entry(oldMovie).CurrentValues.SetValues(updatedMovie);
+
+
         }
 
         public void Delete(Movie deletedMovie)

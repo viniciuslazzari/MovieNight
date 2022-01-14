@@ -12,5 +12,13 @@ namespace CinemaApi.Models
         public int Duration { get; set; }
         public string Synopsis { get; set; }
         public List<NewSessionInputModel> Sessions { get; set; }
+
+        public sealed class NewSessionInputModel
+        {
+            [Required]
+            public string Date { get; set; }
+            public int MaxOccupation { get; set; }
+            public double Price { get; set; }
+        }
     }
 }

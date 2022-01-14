@@ -4,7 +4,6 @@ using CinemaApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,11 +46,16 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> Post([FromBody] NewMovieInputModel inputModel, CancellationToken cancellationToken)
         {
             var newMovie = Movie.Create(inputModel);
-            if (newMovie.IsFailure)  
+            if (newMovie.IsFailure)
+            {
+                _logger.LogInformation($"Error: {newMovie.Error}");
                 return BadRequest(newMovie.Error);
+            }
 
             await _moviesRepository.Create(newMovie.Value, cancellationToken);
             await _moviesRepository.Commit(cancellationToken);
+
+            _logger.LogInformation($"Movie {newMovie.Value.Id} created successfully");
 
             return CreatedAtAction("GetById", new { id = newMovie.Value.Id }, newMovie.Value.Id);
         }
@@ -97,8 +101,10 @@ namespace CinemaApi.Controllers
                 }
             }
 
-            _moviesRepository.Update(guid, inputModel, cancellationToken);
+            _moviesRepository.Update(oldMovie);
             await _moviesRepository.Commit(cancellationToken);
+
+            _logger.LogInformation($"Movie {oldMovie.Id} updated successfully");
 
             return Ok(oldMovie);
         }
@@ -116,6 +122,8 @@ namespace CinemaApi.Controllers
 
             _moviesRepository.Delete(removedMovie);
             await _moviesRepository.Commit(cancellationToken);
+
+            _logger.LogInformation($"Movie {removedMovie.Id} deleted successfully");
 
             return Ok("Movie removed successfully!");
         }

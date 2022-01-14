@@ -67,7 +67,10 @@ namespace CinemaApi.Controllers
 
             var newSession = Session.Create(inputModel);
             if (newSession.IsFailure)
+            {
+                _logger.LogInformation($"Error: {newSession.Error}");
                 return BadRequest(newSession.Error);
+            }
 
             await _sessionsRepository.Create(newSession.Value, cancellationToken);
             await _sessionsRepository.Commit(cancellationToken);

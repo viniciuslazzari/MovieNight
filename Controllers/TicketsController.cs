@@ -53,9 +53,20 @@ namespace CinemaApi.Controllers
             var ticketSession = await _sessionsRepository.GetById(guid, cancellationToken);
             var soldTickets = ticketSession.Tickets.Select(x => x.Amount).Sum();
 
+            if (soldTickets == ticketSession.MaxOccupation)
+                return BadRequest("Session is already full");
+
+            var restTickets = ticketSession.MaxOccupation - soldTickets;
+
+            if (restTickets < inputModel.Amount)
+                return BadRequest($"There are not enough tickets to purchase. You can buy only {restTickets} tickets!");
+
             var newTicket = Ticket.Create(inputModel);
             if (newTicket.IsFailure)
+            {
+                _logger.LogInformation($"Error: {newTicket.Error}");
                 return BadRequest(newTicket.Error);
+            }
 
             await _ticketsRepository.Create(newTicket.Value, cancellationToken);
             await _ticketsRepository.Commit(cancellationToken);
