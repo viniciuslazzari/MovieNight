@@ -67,9 +67,6 @@ namespace CinemaApi.Controllers
         //[RequireHttpsOrClose]
         public async Task<IActionResult> Post([FromBody] NewSessionInputModel inputModel, CancellationToken cancellationToken)
         {
-            if (!Guid.TryParse(inputModel.MovieId, out var guid))
-                return BadRequest(new ErrorJsonResponse("Movie ID could not be converted"));
-
             var newSession = Session.Create(inputModel);
             if (newSession.IsFailure)
             {

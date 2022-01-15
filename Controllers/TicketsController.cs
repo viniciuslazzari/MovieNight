@@ -57,18 +57,13 @@ namespace CinemaApi.Controllers
                 return BadRequest(new ErrorJsonResponse("Session ID could not be converted"));
 
             var ticketSession = await _sessionsRepository.GetById(guid, cancellationToken);
+
+            if (ticketSession == null)
+                return NotFound(new ErrorJsonResponse("Session not found"));
+
             var soldTickets = ticketSession.Tickets.Select(x => x.Amount).Sum();
 
-            if (soldTickets == ticketSession.MaxOccupation)
-                return BadRequest(new ErrorJsonResponse("Session is already full"));
-
-            var restTickets = ticketSession.MaxOccupation - soldTickets;
-
-            if (restTickets < inputModel.Amount)
-                return BadRequest(
-                    new ErrorJsonResponse($"There are not enough tickets to purchase. You can buy only {restTickets} tickets!"));
-
-            var ticket = Ticket.Create(inputModel);
+            var ticket = Ticket.Create(inputModel, ticketSession.MaxOccupation, soldTickets);
             if (ticket.IsFailure)
             {
                 _logger.LogInformation($"Error: {ticket.Error}");

@@ -34,10 +34,15 @@ namespace CinemaApi.Domain
 
         public static Result<Session> Create(NewSessionInputModel inputModel)
         {
+            if (!Guid.TryParse(inputModel.MovieId, out var movieGuid))
+                return Result.Failure<Session>("Movie ID could not be converted");
+
+            if (!DateTime.TryParse(inputModel.Date, out var date))
+                return Result.Failure<Session>("Date could not be converted");
+
             var newSession = 
                 new Session(
-                    Guid.NewGuid(), Guid.Parse(inputModel.MovieId), DateTime.Parse(inputModel.Date), 
-                    inputModel.MaxOccupation, inputModel.Price, new List<Ticket>());
+                    Guid.NewGuid(), movieGuid, date, inputModel.MaxOccupation, inputModel.Price, new List<Ticket>());
 
             return newSession;
         }
