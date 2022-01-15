@@ -62,7 +62,7 @@ namespace CinemaApi.Controllers
 
             _logger.LogInformation($"Movie {movie.Value.Id} created successfully");
 
-            return Ok(new SuccessJsonResponse("Movie created successfully!", movie));
+            return Ok(new SuccessJsonResponse("Movie created successfully!", movie.Value));
         }
 
         [HttpPut("{id}")]

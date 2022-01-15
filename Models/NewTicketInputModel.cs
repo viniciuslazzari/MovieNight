@@ -8,6 +8,7 @@ namespace CinemaApi.Models
         public string SessionId { get; set; }
         [Required]
         public string Client { get; set; }
+        [Required]
         public int Amount { get; set; }
     }
 }

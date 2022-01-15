@@ -7,11 +7,13 @@ namespace CinemaApi.Domain
 {
     public class Ticket
     {
-        [Required]
+        [Key]
         public Guid Id { get; private set; }
         [Required]
         public Guid SessionId { get; private set; }
+        [Required]
         public string Client { get; private set; }
+        [Required]
         public int Amount { get; private set; }
 
         public Ticket(Guid id, Guid sessionId, string client, int amount)

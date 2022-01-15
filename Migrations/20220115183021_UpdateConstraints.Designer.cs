@@ -4,14 +4,16 @@ using CinemaApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CinemaApi.Migrations
 {
     [DbContext(typeof(MovieNightDbContext))]
-    partial class MovieNightDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220115183021_UpdateConstraints")]
+    partial class UpdateConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

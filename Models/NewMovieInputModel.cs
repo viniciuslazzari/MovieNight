@@ -5,7 +5,7 @@ namespace CinemaApi.Models
     public sealed class NewMovieInputModel
     {
         [Required]
-        [MinLength(10, ErrorMessage = "Movie title should have at least 10 characters")]
+        [MinLength(5, ErrorMessage = "Movie title should have at least 5 characters")]
         public string Title { get; set; }
         [Required]
         public int Duration { get; set; }

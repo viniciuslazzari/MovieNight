@@ -80,7 +80,7 @@ namespace CinemaApi.Controllers
 
             _logger.LogInformation($"Ticket {ticket.Value.Id} sold successfully");
 
-            return Ok(new SuccessJsonResponse("Ticket sold successfully!", ticket));
+            return Ok(new SuccessJsonResponse("Ticket sold successfully!", ticket.Value));
         }
     }
 }

@@ -3,7 +3,6 @@ using CSharpFunctionalExtensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace CinemaApi.Domain
 {
@@ -11,10 +10,11 @@ namespace CinemaApi.Domain
     {
         private IList<Ticket> _tickets;
 
-        [Required]
+        [Key]
         public Guid Id { get; private set; }
         [Required]
         public Guid MovieId { get; private set; }
+        [Required]
         public DateTime Date { get; private set; }
         public int MaxOccupation { get; private set; }
         public double Price { get; private set; }

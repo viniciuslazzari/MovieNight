@@ -93,6 +93,9 @@ namespace CinemaApi.Controllers
             if (!Guid.TryParse(id, out var guid))
                 return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
+            if (!Guid.TryParse(inputModel.MovieId, out var movieGuid))
+                return BadRequest(new ErrorJsonResponse("Movie ID could not be converted"));
+
             var session = await _sessionsRepository.GetById(guid, cancellationToken);
 
             if (session == null)

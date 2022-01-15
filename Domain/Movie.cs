@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using CSharpFunctionalExtensions;
-using System.Linq;
 
 namespace CinemaApi.Domain
 {
@@ -13,9 +12,12 @@ namespace CinemaApi.Domain
 
         [Key]
         public Guid Id { get; private set; }
+        [Required]
+        [MinLength(5, ErrorMessage = "Movie title should have at least 5 characters")]
         public string Title { get; private set; }
+        [Required]
         public int Duration { get; private set; }
-        public string Synopsis { get; private set;  }
+        public string Synopsis { get; private set; }
         public IEnumerable<Session> Sessions => _sessions;
 
         private Movie() { }
