@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CinemaApi.Domain
 {
-    public class Session
+    public class Session : BaseModel
     {
         private IList<Ticket> _tickets;
 

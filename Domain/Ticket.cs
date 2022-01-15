@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CinemaApi.Domain
 {
-    public class Ticket
+    public class Ticket : BaseModel
     {
         [Key]
         public Guid Id { get; private set; }

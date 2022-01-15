@@ -6,7 +6,7 @@ using CSharpFunctionalExtensions;
 
 namespace CinemaApi.Domain
 {
-    public sealed class Movie
+    public sealed class Movie : BaseModel
     {
         private IList<Session> _sessions;
 
