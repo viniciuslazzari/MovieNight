@@ -1,6 +1,7 @@
 ﻿using CinemaApi.Domain;
 using CinemaApi.Infrastructure;
 using CinemaApi.Models;
+using CinemaApi.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ namespace CinemaApi.Controllers
         {
             var tickets = await _ticketsRepository.GetAll(cancellationToken);
 
-            return Ok(tickets);
+            return Ok(new SuccessJsonResponse(tickets));
         }
 
         [HttpGet("{id}")]
@@ -40,11 +41,11 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
-                return BadRequest("ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
             var ticket = await _ticketsRepository.GetById(guid, cancellationToken);
 
-            return Ok(ticket);
+            return Ok(new SuccessJsonResponse(ticket));
         }
 
         [HttpPost]
@@ -53,32 +54,33 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> Post([FromBody] NewTicketInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(inputModel.SessionId, out var guid))
-                return BadRequest("Session ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("Session ID could not be converted"));
 
             var ticketSession = await _sessionsRepository.GetById(guid, cancellationToken);
             var soldTickets = ticketSession.Tickets.Select(x => x.Amount).Sum();
 
             if (soldTickets == ticketSession.MaxOccupation)
-                return BadRequest("Session is already full");
+                return BadRequest(new ErrorJsonResponse("Session is already full"));
 
             var restTickets = ticketSession.MaxOccupation - soldTickets;
 
             if (restTickets < inputModel.Amount)
-                return BadRequest($"There are not enough tickets to purchase. You can buy only {restTickets} tickets!");
+                return BadRequest(
+                    new ErrorJsonResponse($"There are not enough tickets to purchase. You can buy only {restTickets} tickets!"));
 
-            var newTicket = Ticket.Create(inputModel);
-            if (newTicket.IsFailure)
+            var ticket = Ticket.Create(inputModel);
+            if (ticket.IsFailure)
             {
-                _logger.LogInformation($"Error: {newTicket.Error}");
-                return BadRequest(newTicket.Error);
+                _logger.LogInformation($"Error: {ticket.Error}");
+                return BadRequest(new ErrorJsonResponse(ticket.Error));
             }
 
-            await _ticketsRepository.Create(newTicket.Value, cancellationToken);
+            await _ticketsRepository.Create(ticket.Value, cancellationToken);
             await _ticketsRepository.Commit(cancellationToken);
 
-            _logger.LogInformation($"Ticket {newTicket.Value.Id} sold successfully");
+            _logger.LogInformation($"Ticket {ticket.Value.Id} sold successfully");
 
-            return CreatedAtAction("GetById", new { id = newTicket.Value.Id }, newTicket.Value.Id);
+            return Ok(new SuccessJsonResponse("Ticket sold successfully!", ticket));
         }
     }
 }

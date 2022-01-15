@@ -1,6 +1,7 @@
 ﻿using CinemaApi.Domain;
 using CinemaApi.Infrastructure;
 using CinemaApi.Models;
+using CinemaApi.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ namespace CinemaApi.Controllers
         {
             var movies = await _moviesRepository.GetAll(cancellationToken);
 
-            return Ok(movies);
+            return Ok(new SuccessJsonResponse(movies));
         }
 
         [HttpGet("{id}")]
@@ -37,11 +38,11 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
-                return BadRequest("ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
             var movie = await _moviesRepository.GetById(guid, cancellationToken);
 
-            return Ok(movie);
+            return Ok(new SuccessJsonResponse(movie));
         }
 
         [HttpPost]
@@ -49,19 +50,19 @@ namespace CinemaApi.Controllers
         //[RequireHttpsOrClose]
         public async Task<IActionResult> Post([FromBody] NewMovieInputModel inputModel, CancellationToken cancellationToken)
         {
-            var newMovie = Movie.Create(inputModel);
-            if (newMovie.IsFailure)
+            var movie = Movie.Create(inputModel);
+            if (movie.IsFailure)
             {
-                _logger.LogInformation($"Error: {newMovie.Error}");
-                return BadRequest(newMovie.Error);
+                _logger.LogInformation($"Error: {movie.Error}");
+                return BadRequest(new ErrorJsonResponse(movie.Error));
             }
 
-            await _moviesRepository.Create(newMovie.Value, cancellationToken);
+            await _moviesRepository.Create(movie.Value, cancellationToken);
             await _moviesRepository.Commit(cancellationToken);
 
-            _logger.LogInformation($"Movie {newMovie.Value.Id} created successfully");
+            _logger.LogInformation($"Movie {movie.Value.Id} created successfully");
 
-            return CreatedAtAction("GetById", new { id = newMovie.Value.Id }, newMovie.Value.Id);
+            return Ok(new SuccessJsonResponse("Movie created successfully!", movie));
         }
 
         [HttpPut("{id}")]
@@ -70,12 +71,12 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> Put(string id, [FromBody] UpdateMovieInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
-                return BadRequest("ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
             var movie = await _moviesRepository.GetById(guid, cancellationToken);
 
             if (movie == null)
-                return NotFound();
+                return NotFound(new ErrorJsonResponse("Movie not found"));
 
             movie.Update(inputModel);
             _moviesRepository.Update(movie);
@@ -83,7 +84,7 @@ namespace CinemaApi.Controllers
 
             _logger.LogInformation($"Movie {movie.Id} updated successfully");
 
-            return Ok(movie);
+            return Ok(new SuccessJsonResponse("Movie updated successfully!", movie));
         }
 
         [HttpDelete("{id}")]
@@ -92,19 +93,19 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
-                return BadRequest("ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
             var removedMovie = await _moviesRepository.GetById(guid, cancellationToken);
 
             if (removedMovie == null)
-                return NotFound();
+                return NotFound(new ErrorJsonResponse("Movie not found"));
 
             _moviesRepository.Delete(removedMovie);
             await _moviesRepository.Commit(cancellationToken);
 
             _logger.LogInformation($"Movie {removedMovie.Id} deleted successfully");
 
-            return Ok("Movie removed successfully!");
+            return Ok(new SuccessJsonResponse("Movie deleted successfully!"));
         }
     }
 }

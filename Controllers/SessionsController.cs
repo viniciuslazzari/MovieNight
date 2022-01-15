@@ -1,6 +1,7 @@
 ﻿using CinemaApi.Domain;
 using CinemaApi.Infrastructure;
 using CinemaApi.Models;
+using CinemaApi.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -33,7 +34,7 @@ namespace CinemaApi.Controllers
             if (!string.IsNullOrEmpty(movie))
             {
                 if (!Guid.TryParse(movie, out var movieGuid))
-                    return BadRequest("Movie ID could not be converted");
+                    return BadRequest(new ErrorJsonResponse("Movie ID could not be converted"));
 
                 sessions = sessions.Where(session => session.MovieId == movieGuid);
             }
@@ -41,12 +42,12 @@ namespace CinemaApi.Controllers
             if (!string.IsNullOrEmpty(date))
             {
                 if (!DateTime.TryParse(date, out var datetime))
-                    return BadRequest();
+                    return BadRequest(new ErrorJsonResponse("Date could not be converted"));
 
                 sessions = sessions.Where(session => session.Date == datetime);
             }
 
-            return Ok(sessions);
+            return Ok(new SuccessJsonResponse(sessions));
         }
 
         [HttpGet("{id}")]
@@ -54,11 +55,11 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
-                return BadRequest("ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
             var session = await _sessionsRepository.GetById(guid, cancellationToken);
 
-            return Ok(session);
+            return Ok(new SuccessJsonResponse(session));
         }
 
         [HttpPost]
@@ -67,13 +68,13 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> Post([FromBody] NewSessionInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(inputModel.MovieId, out var guid))
-                return BadRequest("Movie ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("Movie ID could not be converted"));
 
             var newSession = Session.Create(inputModel);
             if (newSession.IsFailure)
             {
                 _logger.LogInformation($"Error: {newSession.Error}");
-                return BadRequest(newSession.Error);
+                return BadRequest(new ErrorJsonResponse(newSession.Error));
             }
 
             await _sessionsRepository.Create(newSession.Value, cancellationToken);
@@ -81,7 +82,7 @@ namespace CinemaApi.Controllers
 
             _logger.LogInformation($"Session {newSession.Value.Id} created successfully");
 
-            return CreatedAtAction("GetById", new { id = newSession.Value.Id }, newSession.Value.Id);
+            return Ok(new SuccessJsonResponse("Session created successfully!", newSession.Value));
         }
 
         [HttpPut("{id}")]
@@ -90,12 +91,12 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> Put(string id, [FromBody] UpdateSessionInputModel inputModel, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
-                return BadRequest("ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
             var session = await _sessionsRepository.GetById(guid, cancellationToken);
 
             if (session == null)
-                return NotFound();
+                return NotFound(new ErrorJsonResponse("Session not found"));
 
             session.Update(inputModel);
             _sessionsRepository.Update(session);
@@ -103,7 +104,7 @@ namespace CinemaApi.Controllers
 
             _logger.LogInformation($"Session {session.Id} updated successfully");
 
-            return Ok(session);
+            return Ok(new SuccessJsonResponse("Session updated successfully!", session));
         }
 
         [HttpDelete("{id}")]
@@ -112,19 +113,19 @@ namespace CinemaApi.Controllers
         public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(id, out var guid))
-                return BadRequest("ID could not be converted");
+                return BadRequest(new ErrorJsonResponse("ID could not be converted"));
 
             var session = await _sessionsRepository.GetById(guid, cancellationToken);
 
             if (session == null)
-                return NotFound();
+                return NotFound(new ErrorJsonResponse("Session not found"));
 
             _sessionsRepository.Delete(session);
             await _sessionsRepository.Commit(cancellationToken);
 
             _logger.LogInformation($"Session {session.Id} deleted successfully");
 
-            return Ok("Session removed successfully!");
+            return Ok(new SuccessJsonResponse("Session deleted successfully!"));
         }
     }
 }
