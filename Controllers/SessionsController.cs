@@ -18,11 +18,14 @@ namespace CinemaApi.Controllers
     {
         private readonly ILogger<SessionsController> _logger;
         private readonly SessionsRepository _sessionsRepository;
+        private readonly MoviesRepository _moviesRepository;
 
-        public SessionsController(ILogger<SessionsController> logger, SessionsRepository sessionsRepository)
+        public SessionsController(
+            ILogger<SessionsController> logger, SessionsRepository sessionsRepository, MoviesRepository moviesRepository)
         {
             _logger = logger;
             _sessionsRepository = sessionsRepository;
+            _moviesRepository = moviesRepository;
         }
 
         [HttpGet]
@@ -67,6 +70,14 @@ namespace CinemaApi.Controllers
         //[RequireHttpsOrClose]
         public async Task<IActionResult> Post([FromBody] NewSessionInputModel inputModel, CancellationToken cancellationToken)
         {
+            if (!Guid.TryParse(inputModel.MovieId, out var movieGuid))
+                return BadRequest(new ErrorJsonResponse("Movie ID could not be converted"));
+
+            var sessionMovie = await _moviesRepository.GetById(movieGuid, cancellationToken);
+
+            if (sessionMovie == null)
+                return BadRequest(new ErrorJsonResponse("Movie not found"));
+
             var newSession = Session.Create(inputModel);
             if (newSession.IsFailure)
             {
@@ -92,6 +103,11 @@ namespace CinemaApi.Controllers
 
             if (!Guid.TryParse(inputModel.MovieId, out var movieGuid))
                 return BadRequest(new ErrorJsonResponse("Movie ID could not be converted"));
+
+            var movie = await _moviesRepository.GetById(movieGuid, cancellationToken);
+
+            if (movie == null)
+                return BadRequest(new ErrorJsonResponse("Movie not found"));
 
             var session = await _sessionsRepository.GetById(guid, cancellationToken);
 
